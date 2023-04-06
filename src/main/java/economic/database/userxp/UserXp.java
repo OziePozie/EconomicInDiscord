@@ -26,6 +26,6 @@ public class UserXp {
     }
 
     public void setExperience(int experience) {
-        this.experience = experience;
+        this.experience += experience;
     }
 }

@@ -2,7 +2,7 @@ package economic.handlers;
 
 import economic.controllers.XpController;
 import economic.utils.ExpController;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
+import net.dv8tion.jda.api.events.guild.voice.*;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.time.Instant;
@@ -16,18 +16,60 @@ public class VoiceXpHandler extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
-        System.out.println(event);
-        ExpController expController;
-        System.out.println(expControllerMap);
-        if (event.getChannelJoined() != null){
-            expController = new ExpController(Instant.now(), event.getMember().getIdLong());
-            expControllerMap.put(event.getMember().getIdLong(), expController);
+        long memberId = event.getMember().getIdLong();
+        if (event.getChannelJoined() != null && event.getChannelLeft() == null){
+            addExpController(memberId);
         }
-        else if (event.getChannelJoined() == null){
-            int exp = expControllerMap.get(event.getMember().getIdLong()).countFinalExp();
-            expControllerMap.remove(event.getMember().getIdLong());
-            System.out.println(exp);
-            xpController.execute(event,exp);
+        else if (event.getChannelJoined() == null && expControllerMap.get(memberId) != null){
+            expCount(event);
         }
+    }
+
+    @Override
+    public void onGuildVoiceGuildMute(GuildVoiceGuildMuteEvent event) {
+        long memberId = event.getMember().getIdLong();
+        if (event.getMember().getVoiceState().isGuildMuted() && expControllerMap.get(memberId) != null)
+            expCount(event);
+        else if (!event.getMember().getVoiceState().isGuildMuted() && expControllerMap.get(memberId) == null)
+            addExpController(memberId);
+
+    }
+
+    @Override
+    public void onGuildVoiceGuildDeafen(GuildVoiceGuildDeafenEvent event) {
+        long memberId = event.getMember().getIdLong();
+        if (event.getMember().getVoiceState().isGuildDeafened() && expControllerMap.get(memberId) != null)
+            expCount(event);
+        else if (!event.getMember().getVoiceState().isGuildDeafened() && expControllerMap.get(memberId) == null)
+            addExpController(memberId);
+    }
+
+    @Override
+    public void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent event) {
+        long memberId = event.getMember().getIdLong();
+        if (event.getMember().getVoiceState().isSelfMuted() && expControllerMap.get(memberId) != null)
+            expCount(event);
+        else if (!event.getMember().getVoiceState().isSelfMuted() && expControllerMap.get(memberId) == null)
+            addExpController(memberId);
+    }
+
+    @Override
+    public void onGuildVoiceSelfDeafen(GuildVoiceSelfDeafenEvent event) {
+        long memberId = event.getMember().getIdLong();
+        if (event.getMember().getVoiceState().isSelfDeafened() && expControllerMap.get(memberId) != null)
+            expCount(event);
+        else if (!event.getMember().getVoiceState().isSelfDeafened() && expControllerMap.get(memberId) == null)
+            addExpController(memberId);
+    }
+    public ExpController addExpController(long memberId){
+        ExpController expController = new ExpController(Instant.now(), memberId);
+        expControllerMap.put(memberId, expController);
+        return expController;
+    }
+    public void expCount(GenericGuildVoiceEvent event){
+        int exp = expControllerMap.get(event.getMember().getIdLong()).countFinalExp();
+        expControllerMap.remove(event.getMember().getIdLong());
+        System.out.println(exp);
+        xpController.execute(event,exp);
     }
 }
