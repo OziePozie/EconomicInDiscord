@@ -1,6 +1,7 @@
 package org.economic.commands.shopcommands;
 
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -39,7 +40,7 @@ public class ShopBuyCommand implements ICommand {
             event.reply("У вас недостаточно валюты на покупку роли").setEphemeral(true).queue();
         else {
             Role role = event.getJDA().getRoleById(shopList.get(id).getRoleId());
-            Button buttonYes = Button.success("buyroleyes:" + role.getId(), "Да");
+            Button buttonYes = Button.primary("buyroleyes:" + role.getId(), Emoji.fromFormatted("<:yes:1099791926275883158>"));
             event.reply("Вы точно хотите купить роль " + role.getAsMention() + " ?").addActionRow(buttonYes).setEphemeral(true).queue();
         }
     }

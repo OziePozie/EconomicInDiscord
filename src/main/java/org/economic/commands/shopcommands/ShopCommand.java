@@ -5,6 +5,7 @@ import io.github.cdimascio.dotenv.internal.DotenvParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -24,6 +25,7 @@ import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.Timestamp;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.requests.restaction.interactions.ReplyCallbackActionImpl;
 import org.economic.EconomicBot;
 import org.economic.commands.ICommand;
@@ -60,23 +62,20 @@ public class ShopCommand implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        List<Shop> shopList = shopDAOImplement.getListRoles();
-        event.deferReply()
-                .addEmbeds(logic(event, 0, shopList).build())
-                .addActionRow(buttons(event.getMember().getId())).queue();
+        event.deferReply().applyData(logic(event,0)).queue();
+       // event.getHook().sendMessage(logic(event, 0)).queue();
 
     }
 
     public void buttonExecute(ButtonInteractionEvent event){
-        List<Shop> shopList = shopDAOImplement.getListRoles();
-        event.getMessage().delete().queue();
+
         String array[] = event.getButton().getId().split(":");
         int page = Integer.parseInt(array[0]);
-        event.deferEdit()
-                .setEmbeds(logic(event, page, shopList).build())
-                .setActionRow(buttons(event.getMember().getId())).queue();
+        event.deferEdit().applyCreateData(logic(event, page)).queue();
+
     }
-    public EmbedBuilder logic(GenericInteractionCreateEvent event, int page, List<Shop> shopList){
+    public MessageCreateData logic(GenericInteractionCreateEvent event, int page){
+        List<Shop> shopList = shopDAOImplement.getListRoles();
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Color.decode("0xc64200"))
                 .setTitle("ㅤㅤ<:lstar_exclusive:1098696194429026375>  **SHOP ROLES** <:lstar_exclusive:1098696194429026375> \n")
@@ -90,6 +89,14 @@ public class ShopCommand implements ICommand {
                     economicBot.getJda().getGuildById("1092817379899211896").getRoleById(s.getRoleId()).getAsMention(), false);
             fields.add(f);
         }
+        ArrayList<Button> buttonArrayList = new ArrayList<>();
+        int min = Math.min(shopList.size() / 5, 5);
+        for (int j = 0; j < min; j++) {
+            Button button = Button.success( j + ":shoprole:" + event.getMember().getId(), j+1 + "");
+            buttonArrayList.add(button);
+            System.out.println(button);
+        }
+
         int start = page * 5;
         for (int k = start; k < start+5; k++) {
             try {
@@ -98,15 +105,8 @@ public class ShopCommand implements ICommand {
                 break;
             }
         }
-        return embedBuilder;
+        MessageCreateData messageCreateData = new MessageCreateBuilder().addEmbeds(embedBuilder.build()).addActionRow(buttonArrayList).build();
+        return messageCreateData;
     }
-    public ArrayList<Button> buttons(String id){
-        List<Shop> shopList = shopDAOImplement.getListRoles();
-        ArrayList<Button> buttonArrayList = new ArrayList<>();
-        for (int j = 0; j <= shopList.size() / 5; j++) {
-            Button button = Button.success( j + ":shoprole:" + id, j+1 + "");
-            buttonArrayList.add(button);
-        }
-        return buttonArrayList;
-    }
+
 }

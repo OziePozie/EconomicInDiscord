@@ -42,6 +42,9 @@ public class CommandHandler extends ListenerAdapter {
         if (commandName.equals("rep")){
             economicBot.getReputationCommand().execute(event);
         }
+        if (commandName.equals("flip")){
+            economicBot.getFlipCommand().execute(event);
+        }
         if(commandName.equals("award")){
             economicBot.getAwardCommand().execute(event);
         }

@@ -1,6 +1,7 @@
 package org.economic;
 
 import org.economic.commands.*;
+import org.economic.commands.games.FlipCommand;
 import org.economic.commands.shopcommands.*;
 import org.economic.handlers.CommandHandler;
 import org.economic.handlers.MessageHandler;
@@ -23,7 +24,7 @@ public class EconomicBot {
     ShopCommand shopCommand;
     AddRoleToShopCommand AddRoleToShopCommand;
     ShopBuyCommand shopBuyCommand;
-
+    FlipCommand flipCommand;
 
     public void run() throws IOException {
         jda = JDABuilder.createDefault("MTA4NTk3MzMyMDM4MzYwMjg0OQ.G__dwg.IvMZFtXN6Zo0etVSrhoy52GjI11E9Pk9AsVi2k",
@@ -41,6 +42,7 @@ public class EconomicBot {
         shopCommand = new ShopCommand(this);
         AddRoleToShopCommand = new AddRoleToShopCommand(this);
         shopBuyCommand = new ShopBuyCommand(this);
+        flipCommand = new FlipCommand(this);
 
 
         balanceCommand.upsertCommand();
@@ -50,11 +52,15 @@ public class EconomicBot {
         awardCommand.upsertCommand();
         shopCommand.upsertCommand();
         AddRoleToShopCommand.upsertCommand();
-
+        flipCommand.upsertCommand();
     }
 
     public JDA getJda() {
         return jda;
+    }
+
+    public FlipCommand getFlipCommand() {
+        return flipCommand;
     }
 
     public ShopBuyCommand getShopBuyCommand() {
