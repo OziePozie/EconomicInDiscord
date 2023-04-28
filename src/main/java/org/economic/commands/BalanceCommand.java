@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
+import java.util.Optional;
+
 public class BalanceCommand implements ICommand{
     EconomicBot economicBot;
 
@@ -23,18 +25,20 @@ public class BalanceCommand implements ICommand{
     public void upsertCommand() {
         JDA jda = economicBot.getJda();
         jda.upsertCommand("balance","Проверка баланса")
-                .addOption(OptionType.MENTIONABLE,"username","Пользователь", true)
+                .addOption(OptionType.MENTIONABLE,"username","Пользователь")
                 .queue();
     }
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
 
-        Member user = event.getOption("username").getAsMember();
+        Member user;
+
+        if (Optional.ofNullable(event.getOption("username")).isEmpty())
+            user = event.getMember();
+        else user = event.getOption("username").getAsMember();
 
         long userID = user.getIdLong();
-
-
 
         User userEntity = userDAOImplement.findByID(userID);
 
@@ -48,9 +52,6 @@ public class BalanceCommand implements ICommand{
                         .fromEmbeds(message(event, userDAOImplement.getBalance(userEntity),
                                 user)))
                 .queue();
-
-
-
 
     }
 
