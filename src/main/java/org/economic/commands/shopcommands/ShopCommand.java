@@ -69,7 +69,7 @@ public class ShopCommand implements ICommand {
 
     public void buttonExecute(ButtonInteractionEvent event){
 
-        String array[] = event.getButton().getId().split(":");
+        String[] array = event.getButton().getId().split(":");
         int page = Integer.parseInt(array[0]);
         event.deferEdit().applyCreateData(logic(event, page)).queue();
 
@@ -92,7 +92,7 @@ public class ShopCommand implements ICommand {
         ArrayList<Button> buttonArrayList = new ArrayList<>();
         int min = Math.min(shopList.size() / 5, 5);
         for (int j = 0; j < min; j++) {
-            Button button = Button.success( j + ":shoprole:" + event.getMember().getId(), j+1 + "");
+            Button button = Button.success( j + ":shoprole:" + event.getMember().getId(), String.valueOf(j+1));
             buttonArrayList.add(button);
             System.out.println(button);
         }

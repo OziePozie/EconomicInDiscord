@@ -350,14 +350,14 @@ public class DbHandler {
         EmbedBuilder eb = new EmbedBuilder();
         String authorId = event.getMember().getId();
         String memberBan = memberWithBan.getId();
-        eb.setTitle("" + memberWithBan.getEffectiveName());
+        eb.setTitle(memberWithBan.getEffectiveName());
         eb.setDescription("");
                 Button buttonEvent = Button.success(authorId + ":event:" + authorId, "Event Bans");
         Button buttonClose = Button.success(authorId + ":close:" + authorId, "Close Bans");
         Button buttonTournament = Button.success(authorId + ":tournament:" + authorId, "Tournament Bans");
-        eb.setFooter("" + event.getAuthor().getName());
-        ((MessageCreateAction)event.getChannel().sendMessageEmbeds(eb.build(), new MessageEmbed[0])
-                .addActionRow(new ItemComponent[] { (ItemComponent)buttonEvent, (ItemComponent)buttonClose, (ItemComponent)buttonTournament })).queue();
+        eb.setFooter(event.getAuthor().getName());
+        event.getChannel().sendMessageEmbeds(eb.build(), new MessageEmbed[0])
+                .addActionRow(new ItemComponent[] {buttonEvent, buttonClose, buttonTournament}).queue();
     }
 
     public List<MessageEmbed.Field> fieldListBans(String banType, String memberBan) throws ClassNotFoundException {
@@ -379,7 +379,7 @@ public class DbHandler {
         } catch (SQLException|ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        eb.setFooter("" + event.getGuild().getMemberById(member).getEffectiveName());
+        eb.setFooter(event.getGuild().getMemberById(member).getEffectiveName());
         eb.setThumbnail(event.getGuild().getIconUrl());
         eb.setColor(Color.blue);
         return eb.build();

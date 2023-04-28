@@ -33,7 +33,7 @@ public class BanHandler {
             Role banRole = this.guild.getRoleById(this.dotenv.get(ban_type.toUpperCase() + "_BAN_ROLE"));
             Member memberWithBan = this.guild.getMemberById(memberBan);
             int reasonIndex = message.indexOf(eventBan[3]);
-            String reason = message.substring(reasonIndex, message.length());
+            String reason = message.substring(reasonIndex);
             int parseTime = Integer.parseInt(eventBan[2]);
             try {
                 event.getGuild().addRoleToMember(UserSnowflake.fromId(memberBan), banRole).queue();

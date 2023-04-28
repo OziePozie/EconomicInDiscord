@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class UserDAOImplement implements UserDAO {
     SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
@@ -15,7 +16,30 @@ public class UserDAOImplement implements UserDAO {
     public void topTenBalance() {
 
     }
-
+    public List<User> topTen(String st) {
+        Session session = sessionFactory.openSession();
+        List<User> lst = session
+                .createQuery(String.format("FROM User ORDER BY %s DESC", st), User.class)
+                .getResultList();
+        session.close();
+        return lst;
+    }
+    public long getRank(User user, String option){
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            String st = String.format("SELECT COUNT(*) From User\n" +
+                    "WHERE %s > ( SELECT %s as ex FROM User WHERE id = :param1)",option, option);
+            return (long) session.createQuery(st).setParameter("param1", user.getId()).list().get(0);
+        } catch (Exception e){
+            System.out.println(e);
+        } finally {
+            if (session !=null && session.isOpen()){
+                session.close();
+            }
+        }
+        return 1;
+    }
     @Override
     public void giveToOtherUser() {
 

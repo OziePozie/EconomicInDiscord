@@ -45,7 +45,7 @@ public class ShopBuyCommand implements ICommand {
         }
     }
     public void buttonExecuteSuccess(ButtonInteractionEvent event){
-        String array[] = event.getButton().getId().split(":");
+        String[] array = event.getButton().getId().split(":");
         event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(array[1])).queue();
         event.reply("Вы успешно купили новую роль").setEphemeral(true).queue();
     }

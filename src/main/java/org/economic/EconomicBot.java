@@ -1,8 +1,10 @@
 package org.economic;
 
+import net.dv8tion.jda.api.utils.ChunkingFilter;
 import org.economic.commands.*;
 import org.economic.commands.games.FlipCommand;
 import org.economic.commands.shopcommands.*;
+import org.economic.commands.tops.TopCommand;
 import org.economic.handlers.CommandHandler;
 import org.economic.handlers.MessageHandler;
 import org.economic.handlers.VoiceXpHandler;
@@ -25,12 +27,14 @@ public class EconomicBot {
     AddRoleToShopCommand AddRoleToShopCommand;
     ShopBuyCommand shopBuyCommand;
     FlipCommand flipCommand;
+    TopCommand topCommand;
 
     public void run() throws IOException {
-        jda = JDABuilder.createDefault("MTA4NTk3MzMyMDM4MzYwMjg0OQ.G__dwg.IvMZFtXN6Zo0etVSrhoy52GjI11E9Pk9AsVi2k",
+        jda = JDABuilder.createDefault("MTA0MzU0MjkwOTE4MzYwMjcwOQ.G-3sRs.gT8DYkd8G3sqb5kzvZcoW-zpJHBwATokoMy958",
                         GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES)
                 .addEventListeners(new CommandHandler(this), new VoiceXpHandler(), new MessageHandler())
                 .setStatus(OnlineStatus.ONLINE)
+                .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .build();
 
@@ -43,7 +47,7 @@ public class EconomicBot {
         AddRoleToShopCommand = new AddRoleToShopCommand(this);
         shopBuyCommand = new ShopBuyCommand(this);
         flipCommand = new FlipCommand(this);
-
+        topCommand = new TopCommand(this);
 
         balanceCommand.upsertCommand();
         giveCommand.upsertCommand();
@@ -53,6 +57,7 @@ public class EconomicBot {
         shopCommand.upsertCommand();
         AddRoleToShopCommand.upsertCommand();
         flipCommand.upsertCommand();
+        topCommand.upsertCommand();
     }
 
     public JDA getJda() {
@@ -61,6 +66,10 @@ public class EconomicBot {
 
     public FlipCommand getFlipCommand() {
         return flipCommand;
+    }
+
+    public TopCommand getTopCommand() {
+        return topCommand;
     }
 
     public ShopBuyCommand getShopBuyCommand() {

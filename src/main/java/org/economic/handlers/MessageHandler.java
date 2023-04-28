@@ -1,9 +1,11 @@
 package org.economic.handlers;
 
+import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import org.economic.database.user.User;
 import org.economic.database.user.UserDAOImplement;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.economic.triggers.LikeBotTrigger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +15,8 @@ public class MessageHandler extends ListenerAdapter {
 
     Map<Long, Integer> messageCounter = new HashMap<>();
     UserDAOImplement userDAOImplement = new UserDAOImplement();
+
+    LikeBotTrigger likeBotTrigger = new LikeBotTrigger();
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
@@ -34,5 +38,13 @@ public class MessageHandler extends ListenerAdapter {
                 messageCounter.remove(userID);
             } else messageCounter.replace(userID, count + 1);
         }
+
+        if(likeBotTrigger.isFromBot(event)){
+
+            likeBotTrigger.trigger(event);
+
+        }
+        }
     }
-}
+
+

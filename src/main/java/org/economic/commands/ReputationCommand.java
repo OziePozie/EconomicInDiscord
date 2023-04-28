@@ -45,18 +45,18 @@ public class ReputationCommand implements ICommand{
 
         User giver = userDAOImplement.findByID(giverID);
 
-        if (giver.equals(null)){
+        if (giver == (null)){
             userDAOImplement.addUser(new User(giverID, 0));
             giver = userDAOImplement.findByID(giverID);
         }
 
-        Duration cooldown = userDAOImplement.getCooldown(userDAOImplement.findByID(giverID));
+        Duration cooldown = userDAOImplement.getCooldown(giver);
 
         if (event.getMember().equals(user)){
             event.reply("Вы не можете дать репутацию самому себе").queue();
         } else if (cooldown.equals(Duration.ZERO)) {
 
-            if (botUser.equals(null)){
+            if (botUser == (null)){
 
                 userDAOImplement.addUser(new User(userID, 0));
 
@@ -68,6 +68,7 @@ public class ReputationCommand implements ICommand{
             userDAOImplement.setCooldown(giver);
 
             event.replyEmbeds(successMessage(user, userDAOImplement.getReputation(botUser) + 1, giverReputation).build()).queue();
+            System.out.println(successMessage(user, userDAOImplement.getReputation(botUser) + 1, giverReputation).build().getAuthor().getName());
         } else {
             long totalSecs = Math.abs(cooldown.toSeconds());
             int hours = (int) (totalSecs / 3600);

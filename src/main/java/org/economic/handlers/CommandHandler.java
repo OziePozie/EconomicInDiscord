@@ -47,6 +47,9 @@ public class CommandHandler extends ListenerAdapter {
         }
         if(commandName.equals("award")){
             economicBot.getAwardCommand().execute(event);
+       }
+        if (commandName.equals("top")){
+            economicBot.getTopCommand().execute(event);
         }
         if(commandName.equals("shop") && event.getSubcommandGroup().equals("roles") && event.getSubcommandName().equals("show")){
             economicBot.getShopCommand().execute(event);

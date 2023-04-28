@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.Member;
 
 public class UserInfo
 {
-    private Member member;
+    private final Member member;
     private int money;
     
     UserInfo(final Member member) {
