@@ -51,7 +51,7 @@ public class AwardCommand implements ICommand{
         userDAOImplement.setBalance(getter, +quantity);
         event
                 .reply(MessageCreateData
-                        .fromEmbeds(message(getterMember, quantity))).setEphemeral(true)
+                        .fromEmbeds(message(getterMember, quantity)))
                 .queue();
     }
     public MessageEmbed message(Member getter, int quantity) {
