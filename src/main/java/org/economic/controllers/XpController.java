@@ -1,5 +1,6 @@
 package org.economic.controllers;
 
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.economic.database.userxp.UserXp;
 import org.economic.database.userxp.UserXpDAOImplement;
 import net.dv8tion.jda.api.entities.Member;
@@ -19,6 +20,12 @@ public class XpController {
         } else userXpDAOImplement.setXp(userXp, addedXp);
 
     }
+    public void execute(long id, int addedXp){
+        UserXp userXp = userXpDAOImplement.findById(id);
+        if (userXp == null){
+            userXpDAOImplement.addUserXp(new UserXp(id, addedXp));
+        } else userXpDAOImplement.setXp(userXp, addedXp);
 
+    }
 
 }

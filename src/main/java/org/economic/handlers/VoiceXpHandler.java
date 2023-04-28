@@ -1,6 +1,7 @@
 package org.economic.handlers;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.economic.controllers.XpController;
 import org.economic.utils.RecordXp;
 import net.dv8tion.jda.api.events.guild.voice.*;
@@ -12,17 +13,17 @@ import java.util.Map;
 
 public class VoiceXpHandler extends ListenerAdapter {
     XpController xpController = new XpController();
-    private static Map<Long, RecordXp> expControllerMap = new HashMap<>();
+    private static final Map<Long, RecordXp> expControllerMap = new HashMap<>();
 
     //TODO проверить как оно работает со статик полем
 
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         long memberId = event.getMember().getIdLong();
-        if (event.getChannelJoined() != null && event.getChannelLeft() == null){
+        if (event.getChannelJoined() != null && event.getChannelLeft() == null && !isAfkChannel(event)){
             addExpController(memberId);
         }
-        else if (event.getChannelJoined() == null && expControllerMap.get(memberId) != null){
+        else if ((event.getChannelJoined() == null || isAfkChannel(event)) && expControllerMap.get(memberId) != null ){
             expCount(event);
         }
     }
@@ -63,10 +64,13 @@ public class VoiceXpHandler extends ListenerAdapter {
         else if (!event.getMember().getVoiceState().isSelfDeafened() && expControllerMap.get(memberId) == null)
             addExpController(memberId);
     }
-    public RecordXp addExpController(long memberId){
+    public boolean isAfkChannel(GuildVoiceUpdateEvent event){
+        VoiceChannel afkChannel = event.getGuild().getAfkChannel();
+        return event.getChannelJoined().getId().equals(afkChannel.getId());
+    }
+    public void addExpController(long memberId){
         RecordXp recordXp = new RecordXp(Instant.now(), memberId);
         expControllerMap.put(memberId, recordXp);
-        return recordXp;
     }
     public void expCount(GenericGuildVoiceEvent event){
         int exp = expControllerMap.get(event.getMember().getIdLong()).countFinalExp();
@@ -74,8 +78,25 @@ public class VoiceXpHandler extends ListenerAdapter {
         System.out.println(exp);
         xpController.execute(event,exp);
     }
+    public void expCount(Member member){
+        int exp = expControllerMap.get(member.getIdLong()).countFinalExp();
+        expControllerMap.remove(member.getIdLong());
+        System.out.println(exp);
+        xpController.execute(member.getIdLong(), exp);
+        if (!member.getVoiceState().isSuppressed()
+                && !member.getVoiceState().isDeafened()
+                && !member.getVoiceState().isMuted()){
+            addExpController(member.getIdLong());
+        }
+    }
 
     public static int getCountExpBeforeExecuteByDB(Member member) {
-        return expControllerMap.get(member.getIdLong()).countFinalExp();
+        try {
+            expControllerMap.get(member.getIdLong());
+            return expControllerMap.get(member.getIdLong()).countFinalExp();
+        } catch (NullPointerException e) {
+            return 0;
+        }
     }
+
 }

@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.economic.handlers.VoiceXpHandler;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -24,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +35,8 @@ public class ProfileCommand implements ICommand {
     UserDAOImplement userDAOImplement = new UserDAOImplement();
 
     UserXpDAOImplement userXpDAOImplement = new UserXpDAOImplement();
+
+    VoiceXpHandler voiceXpHandler = new VoiceXpHandler();
     final String parentDirectory = "./Profile/";
     final String coordsDirectory = "./Profile/Coords/";
     final String cacheDirectory = "./Profile/Cache/";
@@ -50,7 +54,7 @@ public class ProfileCommand implements ICommand {
     public void upsertCommand() {
         JDA jda = economicBot.getJda();
         jda.upsertCommand("profile", "Профиль")
-                .addOption(OptionType.MENTIONABLE, "username", "Пользователь", true)
+                .addOption(OptionType.MENTIONABLE, "username", "Пользователь")
                 .queue();
     }
 
@@ -59,46 +63,54 @@ public class ProfileCommand implements ICommand {
         File file = null;
         MessageCreateData msg = null;
 
+        Member user;
 
+        if (Optional.ofNullable(event.getOption("username")).isEmpty())
+            user = event.getMember();
+        else user = event.getOption("username").getAsMember();
 
-        Member user = event.getOption("username").getAsMember();
+        long userID = user.getIdLong();
 
-            long userID = user.getIdLong();
+        User userEntity = userDAOImplement.findByID(userID);
 
-            User userEntity = userDAOImplement.findByID(userID);
+        UserXp userXpEntity = userXpDAOImplement.findById(userID);
 
-            UserXp userXpEntity = userXpDAOImplement.findById(userID);
-
-            if (userEntity == null) {
+        if (userEntity == null) {
                 userDAOImplement.addUser(new User(userID, 0));
 
                 userEntity = userDAOImplement.findByID(userID);
-            }
+        }
 
-            if (userXpEntity == null) {
+        if (userXpEntity == null) {
 
                 userXpDAOImplement.addUserXp(new UserXp(userID, 0));
 
                 userXpEntity = userXpDAOImplement.findById(userID);
-            }
+        }
 
-            int balance = userDAOImplement.getBalance(userEntity);
+        int balance = userDAOImplement.getBalance(userEntity);
 
-            int reputation = userDAOImplement.getReputation(userEntity);
+        int reputation = userDAOImplement.getReputation(userEntity);
 
-            long messages = userDAOImplement.getMessages(userEntity);
+        long messages = userDAOImplement.getMessages(userEntity);
 
-            long rank = userXpDAOImplement.getRank(userXpEntity);
+        int xp = userXpDAOImplement.getXp(userXpEntity) + VoiceXpHandler.getCountExpBeforeExecuteByDB(user);
 
-            int xp = userXpDAOImplement.getXp(userXpEntity);
+        try {
+            voiceXpHandler.expCount(user);
+        } catch (NullPointerException ignored){
 
-            file = avatar(user, balance, xp, user.getEffectiveName(), reputation, messages, rank);
+        }
 
-            ReplyCallbackAction a = replyCallbackAction(file, event);
+        long rank = userXpDAOImplement.getRank(userXpEntity);
 
-            a.queue();
+        file = avatar(user, balance, xp, user.getEffectiveName(), reputation, messages, rank);
 
-            file.delete();
+        ReplyCallbackAction a = replyCallbackAction(file, event);
+
+        a.queue();
+
+        file.delete();
     }
     public MessageEmbed message(Member member, int balance, int xp){
 
@@ -172,7 +184,7 @@ public class ProfileCommand implements ICommand {
 
     }
 
-    private void balanceProfile(Graphics g, int balance){
+    private void balanceProfile(Graphics g, int balance) {
         Scanner sc = null;
         try {
             sc = new Scanner(new File(coordsDirectory + "balancecoords.txt"));
@@ -181,30 +193,27 @@ public class ProfileCommand implements ICommand {
 
             int balanceY = sc.nextInt();
 
-            if (balance > 9999){
+            double doubleBalance;
+
+            if (balance > 9999 && balance < 999999) {
 
                 String kk = "k";
 
-                double doubleBalance = (double) balance / 10000;
+                doubleBalance = (double) balance / 1000;
+                g.drawString(String.format("%.2f", doubleBalance) + kk, balanceX, balanceY);
+            } else if (balance > 999999) {
 
-                if (balance > 99999) {
+                doubleBalance = (double) balance / 1000000;
 
-                    doubleBalance = (double) balance / 100000;
+                g.drawString(String.format("%.2f", doubleBalance) + "kk", balanceX, balanceY);
 
-                    kk = "kk";
-
-                }
-                g.drawString(String.format("%.2f",doubleBalance) + kk, balanceX, balanceY);
-
-            }
-            else if (balance < 1000) g.drawString(String.valueOf(balance), balanceX+75,balanceY);
-
-            else g.drawString(String.valueOf(balance), balanceX,balanceY);
+            } else if (balance < 1000) g.drawString(String.valueOf(balance), balanceX + 30, balanceY);
+            else g.drawString(String.valueOf(balance), balanceX, balanceY);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-
     }
+
 
     private void nicknameProfile(Graphics g, String nick){
         try {
@@ -270,13 +279,23 @@ public class ProfileCommand implements ICommand {
 
             int timeY = sc.nextInt();
 
-            g.drawString(String.valueOf(messages), timeX, timeY);
+            double doubleMessage;
+            if (messages < 1000){
 
+                g.drawString(String.valueOf(messages), timeX, timeY);
+
+            } else if (messages >= 999 && messages < 999999) {
+
+                doubleMessage = (double) messages / 1000;
+
+                g.drawString(String.format("%.2fk", doubleMessage), timeX, timeY);
+
+            }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-
     }
+
     private void rankProfile(Graphics g, long rank){
         try {
             Scanner sc = new Scanner(new File(coordsDirectory + "rankcoords.txt"));
