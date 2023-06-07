@@ -1,21 +1,6 @@
 package org.example;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import java.awt.Color;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -25,27 +10,25 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+
+import java.awt.*;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.*;
 
 
 public class DbHandler {
-    private Statement stmt;
-
-    private ResultSet rs;
-
     String url = "jdbc:postgresql://194.87.93.64:5432/femaledb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow";
-
     String name = "female";
-
     String pass = "1";
-
     Dotenv dotenv = Dotenv.load();
-
     JDA jda;
-
     Guild guild;
-
     dayFormat dayFormat = new dayFormat();
+    private Statement stmt;
+    private ResultSet rs;
 
     public void createUsers() throws ClassNotFoundException, SQLException {
         Class.forName("org.postgresql.Driver");
@@ -352,12 +335,12 @@ public class DbHandler {
         String memberBan = memberWithBan.getId();
         eb.setTitle(memberWithBan.getEffectiveName());
         eb.setDescription("");
-                Button buttonEvent = Button.success(authorId + ":event:" + authorId, "Event Bans");
+        Button buttonEvent = Button.success(authorId + ":event:" + authorId, "Event Bans");
         Button buttonClose = Button.success(authorId + ":close:" + authorId, "Close Bans");
         Button buttonTournament = Button.success(authorId + ":tournament:" + authorId, "Tournament Bans");
         eb.setFooter(event.getAuthor().getName());
         event.getChannel().sendMessageEmbeds(eb.build(), new MessageEmbed[0])
-                .addActionRow(new ItemComponent[] {buttonEvent, buttonClose, buttonTournament}).queue();
+                .addActionRow(new ItemComponent[]{buttonEvent, buttonClose, buttonTournament}).queue();
     }
 
     public List<MessageEmbed.Field> fieldListBans(String banType, String memberBan) throws ClassNotFoundException {
@@ -371,12 +354,12 @@ public class DbHandler {
             if (selectEventBanCount(memberBan, ban_type) > 0) {
                 eb.setDescription("Всего: " + selectEventBanCount(memberBan, ban_type) + " " + banTypeToRus(ban_type));
             } else {
-                eb.setDescription("Всего: " + banTypeToRus(ban_type) );
+                eb.setDescription("Всего: " + banTypeToRus(ban_type));
             }
             List<MessageEmbed.Field> fieldList = fieldListBans(ban_type, memberBan);
             for (MessageEmbed.Field field : fieldList)
                 eb.addField(field);
-        } catch (SQLException|ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         eb.setFooter(event.getGuild().getMemberById(member).getEffectiveName());

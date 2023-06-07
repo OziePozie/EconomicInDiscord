@@ -1,13 +1,14 @@
 package org.example;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import java.sql.SQLException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.sql.SQLException;
 
 public class BanHandler {
     Dotenv dotenv = Dotenv.load();
@@ -41,13 +42,13 @@ public class BanHandler {
                 this.dbHandler.updateScheduler(memberBan, banRole.getId(), parseTime, ban_type);
                 event.getMessage().getChannel().sendMessage("Пользователь " + memberWithBan.getAsMention() + " получил " + this.dbHandler
                         .selectEventBanCount(memberBan, ban_type) + " бан " + this.dbHandler.banTypeToRus(ban_type) + " на " + parseTime + " " + this.dayFormat.numberDayFormat(parseTime) + ".").queue();
-            } catch (ClassNotFoundException|SQLException e) {
+            } catch (ClassNotFoundException | SQLException e) {
                 event.getMessage().delete().queue();
                 event.getChannel().sendMessage("!" + this.dbHandler.banTypeToRusSimple(ban_type) + "Ban @Tag [Время в днях] [причина]").queue();
                 throw new RuntimeException(e);
             }
             event.getMessage().delete().queue();
-        } catch (ArrayIndexOutOfBoundsException|StringIndexOutOfBoundsException|NumberFormatException e) {
+        } catch (ArrayIndexOutOfBoundsException | StringIndexOutOfBoundsException | NumberFormatException e) {
             event.getChannel().sendMessage("!" + this.dbHandler.banTypeToRusSimple(ban_type) + "Ban @Tag [Время в днях] [причина]").queue();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -64,12 +65,12 @@ public class BanHandler {
             this.dbHandler.removeEventBan(memberBannedName, id, ban_type);
             event.getGuild().removeRoleFromMember(UserSnowflake.fromId(memberBannedName), banRole).queue();
             event.getMessage().getChannel().sendMessage("Убран" + this.dbHandler.banTypeToRus(ban_type) + " бан у пользователя " + event
-                            .getGuild().getMemberById(memberBannedName).getAsMention() + ". Теперь у него " + this.dbHandler
-                            .selectEventBanCount(memberBannedName, ban_type) + " " + this.dbHandler.banTypeToRus(ban_type) + " банов." ).queue();
-                    event.getMessage().delete().queue();
-        } catch (SQLException|ClassNotFoundException e) {
-            event.getChannel().sendMessage("Скорее всего такого" + this.dbHandler.banTypeToRus(ban_type) + "бана не существует..." ).queue();
-                    event.getMessage().delete().queue();
+                    .getGuild().getMemberById(memberBannedName).getAsMention() + ". Теперь у него " + this.dbHandler
+                    .selectEventBanCount(memberBannedName, ban_type) + " " + this.dbHandler.banTypeToRus(ban_type) + " банов.").queue();
+            event.getMessage().delete().queue();
+        } catch (SQLException | ClassNotFoundException e) {
+            event.getChannel().sendMessage("Скорее всего такого" + this.dbHandler.banTypeToRus(ban_type) + "бана не существует...").queue();
+            event.getMessage().delete().queue();
         }
     }
 
@@ -81,7 +82,7 @@ public class BanHandler {
         }
         try {
             this.dbHandler.embedEventBanList(event);
-        } catch (SQLException|ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

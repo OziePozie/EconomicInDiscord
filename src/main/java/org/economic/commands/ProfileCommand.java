@@ -1,10 +1,5 @@
 package org.economic.commands;
 
-import org.economic.EconomicBot;
-import org.economic.database.user.User;
-import org.economic.database.user.UserDAOImplement;
-import org.economic.database.userxp.UserXp;
-import org.economic.database.userxp.UserXpDAOImplement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
@@ -14,12 +9,15 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.economic.EconomicBot;
+import org.economic.database.user.User;
+import org.economic.database.user.UserDAOImplement;
+import org.economic.database.userxp.UserXp;
+import org.economic.database.userxp.UserXpDAOImplement;
 import org.economic.handlers.VoiceXpHandler;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,18 +28,14 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class ProfileCommand implements ICommand {
-    EconomicBot economicBot;
-
-    UserDAOImplement userDAOImplement = new UserDAOImplement();
-
-    UserXpDAOImplement userXpDAOImplement = new UserXpDAOImplement();
-
-    VoiceXpHandler voiceXpHandler = new VoiceXpHandler();
     final String parentDirectory = "./Profile/";
     final String coordsDirectory = "./Profile/Coords/";
     final String cacheDirectory = "./Profile/Cache/";
-
     final BufferedImage image = ImageIO.read(new File(parentDirectory + "fon.png"));
+    EconomicBot economicBot;
+    UserDAOImplement userDAOImplement = new UserDAOImplement();
+    UserXpDAOImplement userXpDAOImplement = new UserXpDAOImplement();
+    VoiceXpHandler voiceXpHandler = new VoiceXpHandler();
 
 
     public ProfileCommand(EconomicBot economicBot) throws IOException {
@@ -76,16 +70,16 @@ public class ProfileCommand implements ICommand {
         UserXp userXpEntity = userXpDAOImplement.findById(userID);
 
         if (userEntity == null) {
-                userDAOImplement.addUser(new User(userID, 0));
+            userDAOImplement.addUser(new User(userID, 0));
 
-                userEntity = userDAOImplement.findByID(userID);
+            userEntity = userDAOImplement.findByID(userID);
         }
 
         if (userXpEntity == null) {
 
-                userXpDAOImplement.addUserXp(new UserXp(userID, 0));
+            userXpDAOImplement.addUserXp(new UserXp(userID, 0));
 
-                userXpEntity = userXpDAOImplement.findById(userID);
+            userXpEntity = userXpDAOImplement.findById(userID);
         }
 
         int balance = userDAOImplement.getBalance(userEntity);
@@ -98,7 +92,7 @@ public class ProfileCommand implements ICommand {
 
         try {
             voiceXpHandler.expCount(user);
-        } catch (NullPointerException ignored){
+        } catch (NullPointerException ignored) {
 
         }
 
@@ -112,12 +106,13 @@ public class ProfileCommand implements ICommand {
 
         file.delete();
     }
-    public MessageEmbed message(Member member, int balance, int xp){
+
+    public MessageEmbed message(Member member, int balance, int xp) {
 
         return new EmbedBuilder()
                 .setTitle("Profile " + member.getEffectiveName())
                 .setThumbnail(member.getEffectiveAvatarUrl())
-                .addField("На вашем счету:" , String.valueOf(balance), true)
+                .addField("На вашем счету:", String.valueOf(balance), true)
                 .addField("Заработанный опыт:", String.valueOf(xp), true)
                 .build();
     }
@@ -134,9 +129,9 @@ public class ProfileCommand implements ICommand {
 
             BufferedImage img = ImageIO.read(new URL(member.getEffectiveAvatarUrl() + "?size=256"));
 
-            File tmpAvatar = new File(parentDirectory + "avatar" + member.getId()+".png");
+            File tmpAvatar = new File(parentDirectory + "avatar" + member.getId() + ".png");
 
-            ImageIO.write(img,"png",  tmpAvatar);
+            ImageIO.write(img, "png", tmpAvatar);
 
             BufferedImage image1 = ImageIO.read(tmpAvatar);
 
@@ -147,9 +142,9 @@ public class ProfileCommand implements ICommand {
             int y = sc.nextInt();
 
 
-            g.drawImage(image1.getScaledInstance(200,200, Image.SCALE_AREA_AVERAGING), x,y,null);
+            g.drawImage(image1.getScaledInstance(200, 200, Image.SCALE_AREA_AVERAGING), x, y, null);
 
-            g.drawImage(imageMain, 0,0,null);
+            g.drawImage(imageMain, 0, 0, null);
 
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
@@ -165,9 +160,9 @@ public class ProfileCommand implements ICommand {
 
             rankProfile(g, rank);
 
-            File finalProfile = new File(cacheDirectory + member.getId()+".png");
+            File finalProfile = new File(cacheDirectory + member.getId() + ".png");
 
-            ImageIO.write(image,"png", finalProfile);
+            ImageIO.write(image, "png", finalProfile);
 
             try {
                 return finalProfile;
@@ -179,7 +174,6 @@ public class ProfileCommand implements ICommand {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
 
 
     }
@@ -215,7 +209,7 @@ public class ProfileCommand implements ICommand {
     }
 
 
-    private void nicknameProfile(Graphics g, String nick){
+    private void nicknameProfile(Graphics g, String nick) {
         try {
             Scanner sc = new Scanner(new File(coordsDirectory + "nickcoords.txt"));
 
@@ -223,11 +217,11 @@ public class ProfileCommand implements ICommand {
 
             int nickY = sc.nextInt();
 
-            if (nick.length() > 14) nick = nick.substring(0,14) + "...";
+            if (nick.length() > 14) nick = nick.substring(0, 14) + "...";
 
-            if (nick.length() < 10) nickX+=35;
+            if (nick.length() < 10) nickX += 35;
 
-            if (nick.length() < 5) nickX+=40;
+            if (nick.length() < 5) nickX += 40;
 
             g.drawString(nick, nickX, nickY);
 
@@ -236,7 +230,8 @@ public class ProfileCommand implements ICommand {
         }
 
     }
-    private void experienceProfile(Graphics g, int totalSecs){
+
+    private void experienceProfile(Graphics g, int totalSecs) {
         try {
             Scanner sc = new Scanner(new File(coordsDirectory + "timecoords.txt"));
 
@@ -246,16 +241,17 @@ public class ProfileCommand implements ICommand {
 
             int day = (int) TimeUnit.SECONDS.toDays(totalSecs);
             int hours = (int) (TimeUnit.SECONDS.toHours(totalSecs) - (day * 24));
-            int minutes =  (int)((int) TimeUnit.SECONDS.toMinutes(totalSecs) - (TimeUnit.SECONDS.toHours(totalSecs)* 60));
+            int minutes = (int) ((int) TimeUnit.SECONDS.toMinutes(totalSecs) - (TimeUnit.SECONDS.toHours(totalSecs) * 60));
 
-            g.drawString(String.format("%dd:%dh:%dm", day, hours, minutes ), timeX, timeY);
+            g.drawString(String.format("%dd:%dh:%dm", day, hours, minutes), timeX, timeY);
 
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
 
     }
-    private void reputationProfile(Graphics g, int reputation){
+
+    private void reputationProfile(Graphics g, int reputation) {
         try {
             Scanner sc = new Scanner(new File(coordsDirectory + "reputationcoords.txt"));
 
@@ -271,7 +267,7 @@ public class ProfileCommand implements ICommand {
 
     }
 
-    private void messagesProfile(Graphics g, long messages){
+    private void messagesProfile(Graphics g, long messages) {
         try {
             Scanner sc = new Scanner(new File(coordsDirectory + "messagescoords.txt"));
 
@@ -280,7 +276,7 @@ public class ProfileCommand implements ICommand {
             int timeY = sc.nextInt();
 
             double doubleMessage;
-            if (messages < 1000){
+            if (messages < 1000) {
 
                 g.drawString(String.valueOf(messages), timeX, timeY);
 
@@ -296,7 +292,7 @@ public class ProfileCommand implements ICommand {
         }
     }
 
-    private void rankProfile(Graphics g, long rank){
+    private void rankProfile(Graphics g, long rank) {
         try {
             Scanner sc = new Scanner(new File(coordsDirectory + "rankcoords.txt"));
 
@@ -311,7 +307,8 @@ public class ProfileCommand implements ICommand {
         }
 
     }
-    ReplyCallbackAction replyCallbackAction(File file, SlashCommandInteractionEvent event){
+
+    ReplyCallbackAction replyCallbackAction(File file, SlashCommandInteractionEvent event) {
         return event.deferReply().addFiles(FileUpload.fromData(file));
     }
 }

@@ -13,7 +13,7 @@ public class RecordXp {
         this.id = id;
     }
 
-    public int countFinalExp(){
+    public int countFinalExp() {
         System.out.println(start);
         Duration duration = Duration.between(start, Instant.now());
         return (int) duration.toSeconds();

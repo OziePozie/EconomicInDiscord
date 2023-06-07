@@ -1,5 +1,6 @@
 package org.economic.commands.shopcommands;
 
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -40,13 +41,17 @@ public class ShopBuyCommand implements ICommand {
             event.reply("У вас недостаточно валюты на покупку роли").setEphemeral(true).queue();
         else {
             Role role = event.getJDA().getRoleById(shopList.get(id).getRoleId());
-            Button buttonYes = Button.primary("buyroleyes:" + role.getId(), Emoji.fromFormatted("<:yes:1099791926275883158>"));
+            Button buttonYes = Button.primary("buyroleyes:" + role.getId() +  ":" + price, Emoji.fromFormatted("<:yes:1099791926275883158>"));
             event.reply("Вы точно хотите купить роль " + role.getAsMention() + " ?").addActionRow(buttonYes).setEphemeral(true).queue();
         }
     }
-    public void buttonExecuteSuccess(ButtonInteractionEvent event){
+    public void buttonExecuteSuccess(ButtonInteractionEvent event) {
         String[] array = event.getButton().getId().split(":");
-        event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(array[1])).queue();
+        Guild guild = event.getGuild();
+        guild.addRoleToMember(event.getMember(), guild.getRoleById(array[1])).queue();
+        int price = Integer.parseInt(array[2]);
+        User u = userDAOImplement.findByID(event.getMember().getIdLong());
+        userDAOImplement.setBalance(u, -price);
         event.reply("Вы успешно купили новую роль").setEphemeral(true).queue();
     }
 

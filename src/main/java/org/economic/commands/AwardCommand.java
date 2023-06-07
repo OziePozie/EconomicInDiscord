@@ -1,8 +1,6 @@
 package org.economic.commands;
 
-import org.economic.EconomicBot;
-import org.economic.database.user.User;
-import org.economic.database.user.UserDAOImplement;
+import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -12,12 +10,18 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.economic.EconomicBot;
+import org.economic.database.user.User;
+import org.economic.database.user.UserDAOImplement;
 
-public class AwardCommand implements ICommand{
+import java.awt.*;
+import java.time.Instant;
+
+public class AwardCommand implements ICommand {
     EconomicBot economicBot;
 
     UserDAOImplement userDAOImplement = new UserDAOImplement();
-
+    Dotenv dotenv = Dotenv.load();
     public AwardCommand(EconomicBot economicBot) {
         this.economicBot = economicBot;
     }
@@ -25,10 +29,10 @@ public class AwardCommand implements ICommand{
     @Override
     public void upsertCommand() {
         JDA jda = economicBot.getJda();
-        jda.upsertCommand("award","Наградить пользователя")
+        jda.upsertCommand("award", "Наградить пользователя")
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR, Permission.MANAGE_EVENTS))
-                .addOption(OptionType.MENTIONABLE,"username","Пользователь", true)
+                .addOption(OptionType.MENTIONABLE, "username", "Пользователь", true)
                 .addOption(OptionType.INTEGER, "quantity", "Награда", true)
                 .queue();
     }
@@ -43,20 +47,24 @@ public class AwardCommand implements ICommand{
 
         User getter = userDAOImplement.findByID(getterID);
 
-        if (getter== null){
-            userDAOImplement.addUser(new User(getterID,0));
+        if (getter == null) {
+            userDAOImplement.addUser(new User(getterID, 0));
         }
         getter = userDAOImplement.findByID(getterID);
 
         userDAOImplement.setBalance(getter, +quantity);
         event
                 .reply(MessageCreateData
-                        .fromEmbeds(message(getterMember, quantity)))
+                        .fromEmbeds(message(getterMember, quantity, event.getMember())))
                 .queue();
     }
-    public MessageEmbed message(Member getter, int quantity) {
+
+    public MessageEmbed message(Member getter, int quantity, Member author) {
         return new EmbedBuilder()
-                .setTitle("Вы успешно наградили **"+ getter.getEffectiveName() + "** " +quantity)
+                .setColor(Color.decode("#2b2d31"))
+                .setAuthor(author.getUser().getAsTag(), null, author.getEffectiveAvatarUrl())
+                .setTimestamp(Instant.now())
+                .setDescription("Вы успешно наградили **" + getter.getUser().getAsTag() + "** " + quantity + dotenv.get("CURRENCY_EMOJI"))
                 .build();
     }
 }

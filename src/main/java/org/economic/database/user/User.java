@@ -11,19 +11,17 @@ import java.sql.Timestamp;
 @Table(name = "users")
 public class User {
 
-    @Id
-    @Column(name = "user_id")
-    private Long id;
-
     @Column(name = "balance")
     public int balance;
-
     @Column(name = "reputation")
     public int reputation;
     @Column(name = "messages")
     public long messages;
     @Column(name = "rep_cooldown")
     public Timestamp reputationCooldown;
+    @Id
+    @Column(name = "user_id")
+    private Long id;
 
 
     public User(Long id, int balance) {
@@ -35,12 +33,12 @@ public class User {
 
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public int getBalance() {

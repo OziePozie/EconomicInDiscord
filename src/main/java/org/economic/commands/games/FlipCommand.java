@@ -3,16 +3,12 @@ package org.economic.commands.games;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.FileUpload;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.economic.EconomicBot;
 import org.economic.commands.ICommand;
 import org.economic.database.user.User;
@@ -24,11 +20,10 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class FlipCommand implements ICommand {
-    EconomicBot economicBot;
-
-    UserDAOImplement userDAOImplement = new UserDAOImplement();
-
     final String gamesPaths = "./Games/Flip/";
+    EconomicBot economicBot;
+    UserDAOImplement userDAOImplement = new UserDAOImplement();
+    Dotenv dotenv = Dotenv.load();
 
     public FlipCommand(EconomicBot economicBot) {
         this.economicBot = economicBot;
@@ -37,11 +32,11 @@ public class FlipCommand implements ICommand {
     @Override
     public void upsertCommand() {
         JDA jda = economicBot.getJda();
-        OptionData option = new OptionData(OptionType.STRING,"coin",
+        OptionData option = new OptionData(OptionType.STRING, "coin",
                 "Выберите сторону", true)
                 .addChoice("Орел", "Орел")
                 .addChoice("Решка", "Решка");
-        jda.upsertCommand("flip","Сыграть в монетку")
+        jda.upsertCommand("flip", "Сыграть в монетку")
                 .addOption(OptionType.INTEGER, "quantity", "Ставка", true)
                 .addOptions(option).queue();
     }
@@ -58,10 +53,10 @@ public class FlipCommand implements ICommand {
         User author = userDAOImplement.findByID(authorID);
 
 
-        if (author == null){
-            userDAOImplement.addUser(new User(authorID,0));
+        if (author == null) {
+            userDAOImplement.addUser(new User(authorID, 0));
             event.deferReply(true).addContent("У вас недостаточно денег");
-        } else if (author.getBalance() < quantity){
+        } else if (author.getBalance() < quantity) {
             event.deferReply(true).addContent("У вас недостаточно денег");
         } else {
             boolean win = new Random().nextBoolean();
@@ -69,15 +64,15 @@ public class FlipCommand implements ICommand {
             String difference = choice.equals("Орел") ? "Решка" : "Орел";
             System.out.println(win);
             if (win) {
-               File file = new File(gamesPaths + choice + ".gif");
+                File file = new File(gamesPaths + choice + ".gif");
 
-               int winPull = (int) (quantity * 0.75);
+                int winPull = (int) (quantity * 0.75);
 
-               userDAOImplement.setBalance(author, winPull);
+                userDAOImplement.setBalance(author, winPull);
 
-               event.deferReply().addFiles(FileUpload.fromData(file)).queue();
+                event.deferReply().addFiles(FileUpload.fromData(file)).queue();
 
-               event.getHook().editOriginalEmbeds(messageWin(authorMember,winPull)).queueAfter(5, TimeUnit.SECONDS);
+                event.getHook().editOriginalEmbeds(messageWin(authorMember, winPull)).queueAfter(5, TimeUnit.SECONDS);
             } else {
 
                 File file = new File(gamesPaths + difference + ".gif");
@@ -86,26 +81,27 @@ public class FlipCommand implements ICommand {
 
                 event.deferReply().addFiles(FileUpload.fromData(file)).queue();
 
-                event.getHook().editOriginalEmbeds(messageLose(authorMember,quantity)).queueAfter(5, TimeUnit.SECONDS);
+                event.getHook().editOriginalEmbeds(messageLose(authorMember, quantity)).queueAfter(5, TimeUnit.SECONDS);
 
             }
         }
 
     }
-    Dotenv dotenv = Dotenv.load();
+
     public MessageEmbed messageWin(Member member, int quantity) {
         return new EmbedBuilder()
                 .setColor(Color.decode("#2b2d31"))
-                .setAuthor(member.getEffectiveName() + "#" + member.getUser().getDiscriminator(),null, member.getEffectiveAvatarUrl())
+                .setAuthor(member.getEffectiveName() + "#" + member.getUser().getDiscriminator(), null, member.getEffectiveAvatarUrl())
                 .setThumbnail(member.getEffectiveAvatarUrl())
-                .setDescription("Вы выиграли **" + dotenv.get("CURRENCY_EMOJI") + quantity +  "** " )
+                .setDescription("Вы выиграли **" + dotenv.get("CURRENCY_EMOJI") + quantity + "** ")
                 .build();
     }
-    public MessageEmbed messageLose(Member member,int quantity) {
+
+    public MessageEmbed messageLose(Member member, int quantity) {
         return new EmbedBuilder()
                 .setColor(Color.decode("#2b2d31"))
-                .setAuthor(member.getEffectiveName() + "#" + member.getUser().getDiscriminator(),null, member.getEffectiveAvatarUrl())
-                .setDescription("Вы проиграли**" + dotenv.get("CURRENCY_EMOJI") + quantity +  "** " )
+                .setAuthor(member.getEffectiveName() + "#" + member.getUser().getDiscriminator(), null, member.getEffectiveAvatarUrl())
+                .setDescription("Вы проиграли**" + dotenv.get("CURRENCY_EMOJI") + quantity + "** ")
                 .build();
     }
 }

@@ -4,37 +4,35 @@
 
 package org.example;
 
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import java.sql.SQLException;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.UserSnowflake;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.JDA;
-import java.util.TimerTask;
-import java.util.Timer;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class CommandHandler extends ListenerAdapter
-{
+import java.sql.SQLException;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class CommandHandler extends ListenerAdapter {
     private final Main main;
     private final DbHandler dbHandler;
     private final MassRole massRole;
     CheckRoles checkRoles;
-    
+
     CommandHandler(final Main main) {
         this.dbHandler = new DbHandler();
         this.massRole = new MassRole();
         this.checkRoles = new CheckRoles();
         this.main = main;
     }
-    
+
     @Override
     public void onReady(final ReadyEvent event) {
         final JDA jda = event.getJDA();
@@ -59,18 +57,16 @@ public class CommandHandler extends ListenerAdapter
                             event.getJDA().getGuilds().get(1).removeRoleFromMember(UserSnowflake.fromId(s.getMemberid()), jda.getRoleById(s.getRoleID())).queue();
                             System.out.println(UserSnowflake.fromId(s.getMemberid()).getAsMention());
                         });
-                    }
-                    catch (ClassNotFoundException e) {
+                    } catch (ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                 }
             }, 10000L, 600000L);
-        }
-        catch (ClassNotFoundException | SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     public void onButtonInteraction(final ButtonInteractionEvent event) {
         if (event.getButton().getId().contains("event") && event.getButton().getId().contains(event.getMember().getId())) {
@@ -94,7 +90,7 @@ public class CommandHandler extends ListenerAdapter
             event.getMessage().editMessageEmbeds(this.dbHandler.eventBanSelect("tournament", array[2], m, event, array[0])).queue();
         }
     }
-    
+
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
         final String message = event.getMessage().getContentRaw();
@@ -135,8 +131,7 @@ public class CommandHandler extends ListenerAdapter
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 event.getChannel().sendMessage("\u0423 \u0432\u0430\u0441 \u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e \u043f\u0440\u0430\u0432 \u0434\u043b\u044f \u0434\u0430\u043d\u043d\u043e\u0439 \u043a\u043e\u043c\u0430\u043d\u0434\u044b!").queue();
                 event.getMessage().delete().queue();
             }
@@ -149,7 +144,8 @@ public class CommandHandler extends ListenerAdapter
         if (event.getMessage().getContentRaw().startsWith("!\u041c\u0430\u0441\u0441\u0420\u043e\u043b\u044c")) {
             final Member m = event.getMember();
             final String[] msg = event.getMessage().getContentRaw().split(" ");
-            Label_0784: {
+            Label_0784:
+            {
                 if (!this.checkRoles.isOwner(m, event) && !this.checkRoles.isModerator(m, event)) {
                     if (!event.getMember().getPermissions().contains(Permission.ADMINISTRATOR)) {
                         break Label_0784;
@@ -159,12 +155,10 @@ public class CommandHandler extends ListenerAdapter
                     final int days = Integer.parseInt(msg[1]);
                     this.massRole.onMassRoleMessage(event, days);
                     return;
-                }
-                catch (NumberFormatException e2) {
+                } catch (NumberFormatException e2) {
                     event.getChannel().sendMessage("`\u041f\u0440\u0430\u0432\u0438\u043b\u044c\u043d\u044b\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442 \u043a\u043e\u043c\u0430\u043d\u0434\u044b: !\u041c\u0430\u0441\u0441\u0420\u043e\u043b\u044c [\u041a\u043e\u043b-\u0432\u043e \u0434\u043d\u0435\u0439] [\u0422\u0435\u0433\u0438 \u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0435\u0439] [\u0422\u0435\u0433 \u0420\u043e\u043b\u0438]`").queue();
                     return;
-                }
-                catch (SQLException | ClassNotFoundException e) {
+                } catch (SQLException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }

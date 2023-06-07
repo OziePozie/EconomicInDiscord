@@ -5,17 +5,14 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "shop")
 public class Shop {
+    @Column(name = "price")
+    public int price;
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
     @Column(name = "role_id")
     private Long roleId;
-
-    @Column(name = "price")
-    public int price;
 
     public Shop(Long roleId, int price) {
         this.roleId = roleId;

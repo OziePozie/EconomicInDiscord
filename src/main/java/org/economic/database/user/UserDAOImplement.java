@@ -12,34 +12,38 @@ import java.util.List;
 
 public class UserDAOImplement implements UserDAO {
     SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+
     @Override
     public void topTenBalance() {
 
     }
-    public List<User> topTen(String st) {
+
+    public List<User> topTen(String option) {
         Session session = sessionFactory.openSession();
         List<User> lst = session
-                .createQuery(String.format("FROM User ORDER BY %s DESC", st), User.class)
+                .createQuery(String.format("FROM User ORDER BY %s DESC", option), User.class)
                 .getResultList();
         session.close();
         return lst;
     }
-    public long getRank(User user, String option){
+
+    public long getRank(User user, String option) {
         Session session = null;
         try {
             session = sessionFactory.openSession();
             String st = String.format("SELECT COUNT(*) From User\n" +
-                    "WHERE %s > ( SELECT %s as ex FROM User WHERE id = :param1)",option, option);
+                    "WHERE %s > ( SELECT %s as ex FROM User WHERE id = :param1)", option, option);
             return (long) session.createQuery(st).setParameter("param1", user.getId()).list().get(0);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }
         return 1;
     }
+
     @Override
     public void giveToOtherUser() {
 
@@ -69,10 +73,10 @@ public class UserDAOImplement implements UserDAO {
             user.setReputation(user.getReputation() + 1);
             session.update(user);
             session.getTransaction().commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }
@@ -96,14 +100,13 @@ public class UserDAOImplement implements UserDAO {
             session.beginTransaction();
             session.persist(user);
             session.getTransaction().commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }
-
 
 
     }
@@ -117,10 +120,10 @@ public class UserDAOImplement implements UserDAO {
             user.setBalance(user.getBalance() + newBalance);
             session.update(user);
             session.getTransaction().commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }
@@ -140,10 +143,10 @@ public class UserDAOImplement implements UserDAO {
             user.setMessages(user.getMessages() + count);
             session.update(user);
             session.getTransaction().commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }
@@ -154,7 +157,7 @@ public class UserDAOImplement implements UserDAO {
         Instant instant;
         try {
             instant = user.getReputationCooldown().toInstant();
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             return Duration.ZERO;
         }
 
@@ -174,10 +177,10 @@ public class UserDAOImplement implements UserDAO {
             user.setReputationCooldown(Timestamp.valueOf(LocalDateTime.now().plusHours(12)));
             session.update(user);
             session.getTransaction().commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }

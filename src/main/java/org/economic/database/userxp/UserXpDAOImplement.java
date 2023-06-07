@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 
 public class UserXpDAOImplement implements UserXpDAO {
     SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+
     @Override
     public void setXp(UserXp userXp, int exp) {
         Session session = null;
@@ -15,10 +16,10 @@ public class UserXpDAOImplement implements UserXpDAO {
             userXp.setExperience(exp);
             session.update(userXp);
             session.getTransaction().commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }
@@ -42,24 +43,25 @@ public class UserXpDAOImplement implements UserXpDAO {
             session.beginTransaction();
             session.persist(userXp);
             session.getTransaction().commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }
     }
-    public long getRank(UserXp user){
+
+    public long getRank(UserXp user) {
         Session session = null;
         try {
             session = sessionFactory.openSession();
             return (long) session.createQuery("SELECT COUNT(*) From UserXp\n" +
                     "WHERE experience > ( SELECT experience as ex FROM UserXp WHERE id = :param1)").setParameter("param1", user.getId()).list().get(0);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (session !=null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
         }

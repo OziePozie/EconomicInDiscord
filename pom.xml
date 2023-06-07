@@ -6,6 +6,12 @@
     <groupId>org.economic</groupId>
     <artifactId>SunshineBot</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
     <build>
         <plugins>
             <plugin>
@@ -57,6 +63,11 @@
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>com.github.RealCerus</groupId>
+            <artifactId>JGif</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>

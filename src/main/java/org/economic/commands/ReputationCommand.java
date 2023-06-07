@@ -1,18 +1,18 @@
 package org.economic.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import org.economic.EconomicBot;
-import org.economic.database.user.User;
-import org.economic.database.user.UserDAOImplement;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import org.economic.EconomicBot;
+import org.economic.database.user.User;
+import org.economic.database.user.UserDAOImplement;
 
 import java.awt.*;
 import java.time.Duration;
 
-public class ReputationCommand implements ICommand{
+public class ReputationCommand implements ICommand {
 
     EconomicBot economicBot;
 
@@ -25,11 +25,12 @@ public class ReputationCommand implements ICommand{
     @Override
     public void upsertCommand() {
         JDA jda = economicBot.getJda();
-        jda.upsertCommand("rep","Поднять репутацию пользователю")
-                .addOption(OptionType.MENTIONABLE,"username","Пользователь", true)
+        jda.upsertCommand("rep", "Поднять репутацию пользователю")
+                .addOption(OptionType.MENTIONABLE, "username", "Пользователь", true)
                 .queue();
     }
-//TODO Добавить кулдаун на команду
+
+
     @Override
     public void execute(SlashCommandInteractionEvent event) {
 
@@ -45,18 +46,18 @@ public class ReputationCommand implements ICommand{
 
         User giver = userDAOImplement.findByID(giverID);
 
-        if (giver == (null)){
+        if (giver == (null)) {
             userDAOImplement.addUser(new User(giverID, 0));
             giver = userDAOImplement.findByID(giverID);
         }
 
         Duration cooldown = userDAOImplement.getCooldown(giver);
 
-        if (event.getMember().equals(user)){
+        if (event.getMember().equals(user)) {
             event.reply("Вы не можете дать репутацию самому себе").queue();
         } else if (cooldown.equals(Duration.ZERO)) {
 
-            if (botUser == (null)){
+            if (botUser == (null)) {
 
                 userDAOImplement.addUser(new User(userID, 0));
 
@@ -74,17 +75,17 @@ public class ReputationCommand implements ICommand{
             int hours = (int) (totalSecs / 3600);
             int minutes = (int) ((totalSecs % 3600) / 60);
             int seconds = (int) (totalSecs % 60);
-            event.reply(String.format("Подождите %02d:%02d:%02d перед тем как снова поднять репутацию",hours,minutes,seconds)).setEphemeral(true).queue();
+            event.reply(String.format("Подождите %02d:%02d:%02d перед тем как снова поднять репутацию", hours, minutes, seconds)).setEphemeral(true).queue();
         }
     }
 
-    public EmbedBuilder successMessage(Member member, int rep, Member giver){
+    public EmbedBuilder successMessage(Member member, int rep, Member giver) {
         return new EmbedBuilder()
                 .setColor(Color.decode("#2b2d31"))
                 .setThumbnail(member.getEffectiveAvatarUrl())
                 .setDescription("**<a:XX_Tenderly_52:1098878483603669012> Вы подняли репутацию** *" + member.getEffectiveName() + "#" + member.getUser().getDiscriminator()
                         + ".* \n **Вы сможете повторить через 12 часов.**")
-                .setAuthor(giver.getEffectiveName() + "#" + giver.getUser().getDiscriminator(),null, giver.getEffectiveAvatarUrl())
+                .setAuthor(giver.getEffectiveName() + "#" + giver.getUser().getDiscriminator(), null, giver.getEffectiveAvatarUrl())
                 .setFooter("Теперь у " + member.getEffectiveName() + " " + rep + " репутации", member.getEffectiveAvatarUrl());
     }
 }

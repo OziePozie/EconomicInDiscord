@@ -4,7 +4,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 public interface ICommand {
 
-     void upsertCommand();
-     void execute(SlashCommandInteractionEvent event);
+    void upsertCommand();
+
+    void execute(SlashCommandInteractionEvent event);
 
 }
